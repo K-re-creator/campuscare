@@ -9,6 +9,7 @@ $requestId = bin2hex(random_bytes(4));
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CampusCare Service Booking</title>
     <link rel="stylesheet" href="/assets/css/app.css">
+    <script src="/assets/js/app.js" defer></script>
 </head>
 <body>
     <!-- Skip link must be the very first focusable element -->
