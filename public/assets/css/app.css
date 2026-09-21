@@ -1,0 +1,80 @@
+/* Custom properties definitions */
+:root {
+  --brand: #17365d;
+  --accent: #c98910;
+  --space: 1rem;
+}
+
+* {
+  box-sizing: border-box; 
+}
+
+body {
+  margin: 0;
+  color: #17202a; 
+  font: 1rem/1.55 system-ui, sans-serif; 
+}
+
+a { 
+  color: #174f88; 
+}
+
+/* Keyboard Accessibility Focus Rings */
+:focus-visible { 
+  outline: 3px solid var(--accent); 
+  outline-offset: 3px; 
+}
+
+/* Hidden skip link baseline styles */
+.skip-link { 
+  position: absolute; 
+  left: -10000px; 
+  top: auto; 
+}
+
+.skip-link:focus { 
+  left: 1rem; 
+  top: 1rem; 
+  background: white; 
+  padding: .75rem; 
+  z-index: 5; 
+}
+
+.site-header, nav, main, footer { 
+  padding: var(--space); 
+}
+
+/* Mobile-First Layout Config (Single column layout) */
+.services { 
+  display: grid; 
+  gap: var(--space); 
+}
+
+.card { 
+  border: 1px solid #c9d1d9; 
+  border-radius: .5rem; 
+  padding: 1rem; 
+}
+
+.field {
+  margin-bottom: var(--space);
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+/* 💻 Media Queries for Wider Screens */
+@media (min-width: 48rem) {
+  .services { 
+    grid-template-columns: repeat(2, minmax(0, 1fr)); 
+  }
+}
+
+@media (min-width: 75rem) {
+  .services { 
+    grid-template-columns: repeat(3, minmax(0, 1fr)); 
+  }
+}
