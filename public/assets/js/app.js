@@ -78,3 +78,71 @@ form.addEventListener("submit", (event) => {
 });
 
 console.log("Part C Complete: Interface boundaries connected safely!");
+
+const slotStatus = document.querySelector("#slot-status");
+const slotList = document.querySelector("#slots");
+let activeController;
+
+// Safely inserts new options using textContent to avoid XSS injections
+function renderSlots(slots) {
+    slotList.replaceChildren(); // Clears previous options
+    
+    // Add default blank option
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "";
+    defaultOption.textContent = "Choose a time";
+    slotList.append(defaultOption);
+
+    for (const slot of slots) {
+        if (!Number.isInteger(slot.id) || typeof slot.label !== "string") continue;
+        const option = document.createElement("option");
+        option.value = String(slot.id);
+        option.textContent = slot.label;
+        slotList.append(option);
+    }
+}
+
+async function loadSlots(serviceId) {
+    // Abort any ongoing previous fetch requests to prevent stale race conditions
+    activeController?.abort();
+    activeController = new AbortController();
+
+    slotStatus.textContent = "Loading available times...";
+    slotList.replaceChildren();
+
+    try {
+        const url = `/api/slots.php?serviceId=${encodeURIComponent(serviceId)}`;
+        const response = await fetch(url, {
+            headers: { Accept: "application/json" },
+            signal: activeController.signal
+        });
+
+        if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+
+        const slots = await response.json();
+        if (!Array.isArray(slots)) throw new TypeError("Unexpected response shape");
+
+        renderSlots(slots);
+        
+        // Update user status
+        slotStatus.textContent = slots.length
+            ? `${slots.length} times available.`
+            : "No times are available.";
+
+    } catch (error) {
+        if (error.name !== "AbortError") {
+            slotStatus.textContent = "Times could not be loaded. Try again.";
+            console.error(error);
+        }
+    }
+}
+
+// Fire the network request whenever the selected service changes
+service.addEventListener("change", () => {
+    if (service.value) {
+        loadSlots(service.value);
+    } else {
+        slotStatus.textContent = "Choose a service to see available times.";
+        slotList.replaceChildren();
+    }
+});
