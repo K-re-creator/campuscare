@@ -67,6 +67,12 @@ $requestId = bin2hex(random_bytes(4));
             <option value="2">IT Support Counter</option>
             <option value="3">Student Health Clinic</option>
         </select>
+        <label for="slots">Available Times</label>
+    <!-- Screen readers will announce updates inside this container -->
+    <p id="slot-status" aria-live="polite">Choose a service to see available times.</p>
+    <select id="slots" name="slot_id" required>
+        <option value="">Choose a time</option>
+    </select>
     </div>
 
     <div class="field">
