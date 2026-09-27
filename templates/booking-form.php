@@ -1,69 +1,51 @@
 <?php
-// Initialize empty arrays if this is the initial GET request so PHP doesn't throw notices
+declare(strict_types=1);
+// Ensure this file is always included in a context where $values and $errors are defined
 $values = $values ?? ['service_id' => '', 'slot_id' => '', 'notes' => ''];
 $errors = $errors ?? [];
 ?>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Book an Appointment</title>
+</head>
+<body>
+    <main>
+        <h1>Schedule Appointment</h1>
 
-<!-- If there are any server errors, render an accessible error summary box at the top -->
-<?php if (!empty($errors)): ?>
-    <div class="error-summary" role="alert" aria-labelledby="error-summary-title" tabindex="-1">
-        <h2 id="error-summary-title">There is a problem with your submission</h2>
-        <ul>
-            <?php foreach ($errors as $field => $message): ?>
-                <li><a href="#<?= e($field) ?>"><?= e($message) ?></a></li>
-            <?php endforeach; ?>
-        </ul>
-    </div>
-<?php endif; ?>
+        <form action="/booking-create.php" method="post" novalidate>
+            <div>
+                <label for="service_id">Service Preference</label>
+                <select id="service_id" name="service_id" aria-describedby="service_error">
+                    <option value="">-- Choose Option --</option>
+                    <option value="1" <?= (string)$values['service_id'] === '1' ? 'selected' : '' ?>>Health Assessment</option>
+                    <option value="2" <?= (string)$values['service_id'] === '2' ? 'selected' : '' ?>>Vaccination Service</option>
+                    <option value="3" <?= (string)$values['service_id'] === '3' ? 'selected' : '' ?>>Mental Health Triage</option>
+                </select>
+                <?php if (isset($errors['service_id'])): ?>
+                    <p id="service_error" style="color:red;" role="alert"><?= e($errors['service_id']) ?></p>
+                <?php endif; ?>
+            </div>
 
-<form id="booking-form" action="/booking-create.php" method="post">
+            <div>
+                <label for="slot_id">Available Slot Reference ID</label>
+                <input type="number" id="slot_id" name="slot_id" value="<?= e((string)($values['slot_id'] ?: '')) ?>" aria-describedby="slot_error">
+                <?php if (isset($errors['slot_id'])): ?>
+                    <p id="slot_error" style="color:red;" role="alert"><?= e($errors['slot_id']) ?></p>
+                <?php endif; ?>
+            </div>
 
-<!-- 🔐 CSRF Anti-Forgery Token Injection Vector -->
-    <input type="hidden" name="csrf" value="<?= e(csrfToken()) ?>">
-    
-    <!-- 1. Service Field -->
-    <div class="field">
-        <label for="service_id">Service</label>
-        <select id="service_id" name="service_id" required 
-                aria-invalid="<?= isset($errors['service_id']) ? 'true' : 'false' ?>"
-                aria-describedby="<?= isset($errors['service_id']) ? 'service_id-error' : '' ?>">
-            <option value="">Choose a service</option>
-            <option value="1" <?= $values['service_id'] === 1 ? 'selected' : '' ?>>Academic advising</option>
-            <option value="2" <?= $values['service_id'] === 2 ? 'selected' : '' ?>>IT Support Counter</option>
-            <option value="3" <?= $values['service_id'] === 3 ? 'selected' : '' ?>>Health Services</option>
-        </select>
-        <?php if (isset($errors['service_id'])): ?>
-            <p id="service_id-error" class="error-text"><?= e($errors['service_id']) ?></p>
-        <?php endif; ?>
-    </div>
+            <div>
+                <label for="notes">Additional Consultation Notes</label>
+                <textarea id="notes" name="notes" aria-describedby="notes_error"><?= e($values['notes']) ?></textarea>
+                <?php if (isset($errors['notes'])): ?>
+                    <p id="notes_error" style="color:red;" role="alert"><?= e($errors['notes']) ?></p>
+                <?php endif; ?>
+            </div>
 
-    <!-- 2. Time Slot Field -->
-    <div class="field">
-        <label for="slot_id">Available Times</label>
-        <p id="slot-status" aria-live="polite">Choose a service to see available times.</p>
-        <select id="slot_id" name="slot_id" required
-                aria-invalid="<?= isset($errors['slot_id']) ? 'true' : 'false' ?>"
-                aria-describedby="slot-status <?= isset($errors['slot_id']) ? 'slot_id-error' : '' ?>">
-            <option value="">Choose a time</option>
-            <!-- In Lab 8, these will be dynamically fetched from the DB -->
-            <option value="101" <?= $values['slot_id'] === 101 ? 'selected' : '' ?>>Monday 09:00</option>
-            <option value="102" <?= $values['slot_id'] === 102 ? 'selected' : '' ?>>Monday 10:30</option>
-        </select>
-        <?php if (isset($errors['slot_id'])): ?>
-            <p id="slot_id-error" class="error-text"><?= e($errors['slot_id']) ?></p>
-        <?php endif; ?>
-    </div>
-
-    <!-- 3. Optional Notes Field (Crucial for testing XSS and character limits) -->
-    <div class="field">
-        <label for="notes">Additional Notes (Optional)</label>
-        <textarea id="notes" name="notes" rows="4" cols="50"
-                aria-invalid="<?= isset($errors['notes']) ? 'true' : 'false' ?>"
-                aria-describedby="<?= isset($errors['notes']) ? 'notes-error' : '' ?>"><?= e($values['notes']) ?></textarea>
-        <?php if (isset($errors['notes'])): ?>
-            <p id="notes-error" class="error-text"><?= e($errors['notes']) ?></p>
-        <?php endif; ?>
-    </div>
-
-    <button type="submit">Request appointment</button>
-</form>
+            <button type="submit">Submit Request</button>
+        </form>
+    </main>
+</body>
+</html>

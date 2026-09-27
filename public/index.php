@@ -22,6 +22,7 @@ $requestId = bin2hex(random_bytes(4));
     <nav aria-label="Primary">
         <ul class="nav-list">
             <li><a aria-current="page" href="/">Services</a></li>
+            <li><a href="/booking.php">Book Appointment Form</a></li>
             <li><a href="/bookings.php">My bookings</a></li>
         </ul>
     </nav>
@@ -83,6 +84,11 @@ $requestId = bin2hex(random_bytes(4));
         <p id="date-error" class="error" aria-live="polite"></p>
     </div>
 
+    <div class="field">
+                    <!-- FIXED: Added missing text notes area matching validateBooking() structural schema -->
+                    <label for="notes">Additional Consultation Notes</label>
+                    <textarea id="notes" name="notes"></textarea>
+                </div>
     <button type="submit">Request appointment</button>
 </form>
 
