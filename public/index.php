@@ -1,5 +1,10 @@
 <?php
 declare(strict_types=1);
+
+// LAB 6/8 REQUIRED: Load central session security settings and environment config constants
+require_once __DIR__ . '/../src/bootstrap.php';
+require_once __DIR__ . '/../src/helpers.php';
+
 $requestId = bin2hex(random_bytes(4));
 ?>
 <!doctype html>
@@ -56,43 +61,16 @@ $requestId = bin2hex(random_bytes(4));
         </div>
 
         <!-- Booking Form Section Container -->
-        <section id="booking-section" aria-labelledby="form-heading">
-            <h2 id="form-heading">Request an Appointment</h2>
-                <form id="booking-form" action="/booking-create.php" method="post">
-    <div class="field">
-        <!-- Native, explicitly coupled label -->
-        <label for="service">Service Selection</label>
-        <select id="service" name="service_id" required>
-            <option value="">Choose a service</option>
-            <option value="1">Academic advising</option>
-            <option value="2">IT Support Counter</option>
-            <option value="3">Student Health Clinic</option>
-        </select>
-        <label for="slots">Available Times</label>
-    <!-- Screen readers will announce updates inside this container -->
-    <p id="slot-status" aria-live="polite">Choose a service to see available times.</p>
-    <select id="slots" name="slot_id" required>
-        <option value="">Choose a time</option>
-    </select>
-    </div>
+        <!-- Booking Form Section Container -->
+<section id="booking-section" aria-labelledby="form-heading">
+    <h2 id="form-heading">Request an Appointment</h2>
+    <?php 
+    $values = ['service_id' => '', 'slot_id' => '', 'notes' => '', 'date' => ''];
+    $errors = [];
+    require __DIR__ . '/../templates/booking-form.php'; 
+    ?>
+</section>
 
-    <div class="field">
-        <label for="date">Preferred Date</label>
-        <!-- Accessible association connecting help and errors using aria-describedby -->
-        <p id="date-help">Choose a weekday within the next 30 days.</p>
-        <input id="date" name="date" type="date" required aria-describedby="date-help date-error">
-        <p id="date-error" class="error" aria-live="polite"></p>
-    </div>
-
-    <div class="field">
-                    <!-- FIXED: Added missing text notes area matching validateBooking() structural schema -->
-                    <label for="notes">Additional Consultation Notes</label>
-                    <textarea id="notes" name="notes"></textarea>
-                </div>
-    <button type="submit">Request appointment</button>
-</form>
-
-        </section>
     </main>
 
     <footer>

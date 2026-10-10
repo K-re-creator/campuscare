@@ -1,148 +1,76 @@
 "use strict";
 
-// Select the required interactive elements from the DOM template
-const form = document.querySelector("#booking-form");
-const service = document.querySelector("#service");
-const date = document.querySelector("#date");
-const dateError = document.querySelector("#date-error");
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.querySelector("#booking-form");
+    if (!form) return; // Halt cleanly if loaded on a page without the booking container template
 
-// Defensive Check: Fail immediately during development if any markup element is missing or renamed
-if (!form || !service || !date || !dateError) {
-    throw new Error("Booking form markup is incomplete");
-}
+    form.addEventListener("submit", async (event) => {
+        // Feature check: Abort interception loop cleanly if the browser lacks modern Fetch APIs
+        if (!window.fetch) return;
 
-console.log("Part A Complete: JavaScript toolchain and DOM variables loaded safely!");
+        // Prevent native window navigation reloads
+        event.preventDefault();
 
-// Part B: Pure, isolated date validation logic function
+        // Clear any old, historically rendered error banners on screen
+        const existingSummary = document.querySelector(".error-summary");
+        if (existingSummary) existingSummary.remove();
+        document.querySelectorAll(".error").forEach(el => el.remove());
+        document.querySelectorAll("[aria-invalid]").forEach(el => el.setAttribute("aria-invalid", "false"));
 
-function validateWeekday(dateText) {
-    // 1. Structural check: Must match YYYY-MM-DD format exactly
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateText)) {
-        return "Enter a valid date.";
-    }
-    
-    // 2. Parse into a timezone-safe JavaScript Date object (forcing noon local time)
-    const value = new Date(`${dateText}T12:00:00`);
-    if (Number.isNaN(value.valueOf())) {
-        return "Enter a real date.";
-    }
-    
-    // 3. Inspect day values (0 = Sunday, 6 = Saturday)
-    if (value.getDay() === 0 || value.getDay() === 6) {
-        return "Choose a weekday, Monday to Friday.";
-    }
-    
-    return ""; // Empty string indicates the input value is valid!
-}
+        const submitButton = form.querySelector("button[type='submit']");
+        if (submitButton) submitButton.disabled = true;
 
-// Inline Unit Tests via Console Assertions (The 5 cases from Pre-Lab)
-const testCases = [
-    ["", "Enter a valid date."],
-    ["not-a-date", "Enter a valid date."],
-    ["2026-09-19", "Choose a weekday, Monday to Friday."], // This is a Saturday
-    ["2026-09-20", "Choose a weekday, Monday to Friday."], // This is a Sunday
-    ["2026-09-21", ""] // This is today, Monday (Valid)
-];
+        // Construct standard payload objects mapping form element key-value strings
+        const formData = new FormData(form);
+        const payload = Object.fromEntries(formData.entries());
 
-// Run the assertions loop
-for (const [input, expected] of testCases) {
-    console.assert(validateWeekday(input) === expected, `Test failed for input value: ${input}`);
-}
+        try {
+            // Asynchronous Fetch Delivery Gate targeting your new JSON API router location
+            const response = await fetch("/api/booking-create.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    // Pass the anti-CSRF token hidden field value within custom header slots
+                    "X-CSRF-Token": payload.csrf || ""
+                },
+                body: JSON.stringify(payload)
+            });
 
-console.log("Part B Complete: Automated validation checks executed successfully!");
+            const result = await response.json();
 
-//Part C: Connect the rule to the user interface
-// =========================================================================
+            if (!response.ok) {
+                // Throw validation or conflict details down to the user interaction interface catch loop
+                throw new Error(result.title || "Your appointment request failed to process.");
+            }
 
-function showDateError(message) {
-    dateError.textContent = message;
-    if (message) {
-        date.setAttribute("aria-invalid", "true");
-    } else {
-        date.removeAttribute("aria-invalid");
-    }
-}
+            // Success Path: Redirect main window location history loops smoothly to completion layout routes
+            window.location.assign("/booking-success.php");
 
-// Clear visual and screen reader error flags instantly when the user fixes the text field
-date.addEventListener("input", () => showDateError(""));
-
-// Intercept form transmission boundaries
-form.addEventListener("submit", (event) => {
-    const message = validateWeekday(date.value);
-    showDateError(message);
-    
-    if (message) {
-        event.preventDefault(); // Stop data transit to server handler
-        date.focus();           // Immediately push interface focus point to the problematic field
-    }
-});
-
-console.log("Part C Complete: Interface boundaries connected safely!");
-
-const slotStatus = document.querySelector("#slot-status");
-const slotList = document.querySelector("#slots");
-let activeController;
-
-// Safely inserts new options using textContent to avoid XSS injections
-function renderSlots(slots) {
-    slotList.replaceChildren(); // Clears previous options
-    
-    // Add default blank option
-    const defaultOption = document.createElement("option");
-    defaultOption.value = "";
-    defaultOption.textContent = "Choose a time";
-    slotList.append(defaultOption);
-
-    for (const slot of slots) {
-        if (!Number.isInteger(slot.id) || typeof slot.label !== "string") continue;
-        const option = document.createElement("option");
-        option.value = String(slot.id);
-        option.textContent = slot.label;
-        slotList.append(option);
-    }
-}
-
-async function loadSlots(serviceId) {
-    // Abort any ongoing previous fetch requests to prevent stale race conditions
-    activeController?.abort();
-    activeController = new AbortController();
-
-    slotStatus.textContent = "Loading available times...";
-    slotList.replaceChildren();
-
-    try {
-        const url = `/api/slots.php?serviceId=${encodeURIComponent(serviceId)}`;
-        const response = await fetch(url, {
-            headers: { Accept: "application/json" },
-            signal: activeController.signal
-        });
-
-        if (!response.ok) throw new Error(`Request failed: ${response.status}`);
-
-        const slots = await response.json();
-        if (!Array.isArray(slots)) throw new TypeError("Unexpected response shape");
-
-        renderSlots(slots);
-        
-        // Update user status
-        slotStatus.textContent = slots.length
-            ? `${slots.length} times available.`
-            : "No times are available.";
-
-    } catch (error) {
-        if (error.name !== "AbortError") {
-            slotStatus.textContent = "Times could not be loaded. Try again.";
-            console.error(error);
+        } catch (error) {
+            if (submitButton) submitButton.disabled = false;
+            
+            // Build and inject an accessible error notification container layout block
+            const errorSummary = document.createElement("div");
+            errorSummary.className = "error-summary";
+            errorSummary.setAttribute("role", "alert");
+            errorSummary.style.cssText = "border: 2px solid red; padding: 1rem; margin-bottom: 1.5rem;";
+            errorSummary.innerHTML = `<h3 style="margin-top:0; color:red;">Form submission error</h3><p>${escapeHtml(error.message)}</p>`;
+            
+            form.parentNode.insertBefore(errorSummary, form);
+            errorSummary.scrollIntoView({ behavior: "smooth" });
         }
-    }
-}
-
-// Fire the network request whenever the selected service changes
-service.addEventListener("change", () => {
-    if (service.value) {
-        loadSlots(service.value);
-    } else {
-        slotStatus.textContent = "Choose a service to see available times.";
-        slotList.replaceChildren();
-    }
+    });
 });
+
+/**
+ * Utility string sanitization tool preventing code injection parameters within dynamic template inserts.
+ */
+function escapeHtml(str) {
+    return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}

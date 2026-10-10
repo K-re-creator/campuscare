@@ -1,20 +1,36 @@
 <?php
 declare(strict_types=1);
+// Inject temporary development runtime environment keys directly into memory
+putenv('DB_HOST=127.0.0.1');
+putenv('DB_NAME=campuscare');
+putenv('DB_USER=root');
+putenv('DB_PASSWORD='); // <-- Insert your local MySQL root password inside these quotes if you have one set up
 
-// Prevent session hijacking by configuring secure cookie policies
+// 2. DEFENSIVE SECURITY: Turn off public inline tracking dumps completely (Lab 10 requirement)
+ini_set('display_errors', '0');
+ini_set('display_startup_errors', '0');
+error_reporting(E_ALL); 
+
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_set_cookie_params([
-        'lifetime' => 0,                      // Cookie expires when the browser closes
-        'path'     => '/',                    // Available across the entire domain
-        'secure'   => !empty($_SERVER['HTTPS']), // True in production HTTPS, false for local HTTP testing
-        'httponly' => true,                   // Blocks JavaScript access to the cookie (Mitigates XSS cookie theft)
-        'samesite' => 'Lax',                  // Blocks cookie transmission on cross-site requests (Mitigates CSRF)
+        'lifetime' => 0,                      // Expires when browser closes
+        'path'     => '/',
+        'secure'   => !empty($_SERVER['HTTPS']), // Require HTTPS in production environments
+        'httponly' => true,                   // Stop JavaScript cookie interception
+        'samesite' => 'Lax',                  // Defend against third-party request leaks
     ]);
     session_start();
 }
 
+// 4. LAB 11 HARDENING: Inject Security Policy Response Headers globally
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: DENY');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
+header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none';");
+
 /**
- * Generates or retrieves a cryptographically secure token for form verification.
+ * Generates or fetches a cryptographically secure token for forms.
  */
 function csrfToken(): string
 {
@@ -25,24 +41,23 @@ function csrfToken(): string
 }
 
 /**
- * Intercepts state-changing requests and drops them if the CSRF token is invalid.
+ * Validates the inbound post token against the session baseline.
  */
 function requireCsrf(): void
 {
     $sent = (string)($_POST['csrf'] ?? '');
     if (!isset($_SESSION['csrf']) || !hash_equals($_SESSION['csrf'], $sent)) {
-        http_response_code(403); // Forbidden
-        exit('Request could not be verified due to missing or invalid CSRF token.');
+        http_response_code(403);
+        exit('Request could not be verified (CSRF token mismatch).');
     }
 }
 
 /**
- * Security Check: Ensures the user is logged in. 
- * If an anonymous visitor hits a page protected by this function, they get bounced straight to login.php.
+ * Guard tool ensuring anonymous clients are forced back to a login screen.
  */
 function requireUser(): array
 {
-    if (!isset($_SESSION['user']) || !is_array($_SESSION['user'])) {
+    if (!isset($_SESSION['user'])) {
         header('Location: /login.php', true, 303);
         exit;
     }
