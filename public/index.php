@@ -36,29 +36,45 @@ $requestId = bin2hex(random_bytes(4));
         <h1>Available campus services</h1>
         <p>Development request tracing ID: <?= htmlspecialchars($requestId) ?></p>
 
-        <!-- Service Catalogue Grid Component -->
+               <!-- Service Catalogue Grid Component -->
         <div class="services" id="services">
             <article class="card">
+                <figure style="margin: -1.25rem -1.25rem 1rem -1.25rem; overflow: hidden; border-top-left-radius: var(--radius); border-top-right-radius: var(--radius); height: 160px;">
+                    <img src="/assets/img/AcademicAdvising.jpg" 
+                         alt="Academic guidance counselor reviewing registration documents with a student" 
+                         style="width: 100%; height: 100%; object-fit: cover;">
+                </figure>
                 <h2>Academic Advising</h2>
                 <p>One-on-one session with your faculty path advisor.</p>
-                <p><strong>Duration:</strong> 45 minutes</p>
-                <a href="#booking-form" aria-label="Book academic advising session">Book academic advising</a>
+                <p style="font-size: 0.9rem; margin-bottom: 1rem;"><strong>Duration:</strong> 45 minutes</p>
+                <a href="#booking-section" aria-label="Book academic advising session">Book academic advising</a>
             </article>
 
             <article class="card">
+                <figure style="margin: -1.25rem -1.25rem 1rem -1.25rem; overflow: hidden; border-top-left-radius: var(--radius); border-top-right-radius: var(--radius); height: 160px;">
+                    <img src="/assets/img/itsupport.jpg" 
+                         alt="IT support guys helping clients virtually at a support desk" 
+                         style="width: 100%; height: 100%; object-fit: cover;">
+                </figure>
                 <h2>IT Support Counter</h2>
                 <p>On-campus technical hardware diagnostics and configuration support.</p>
-                <p><strong>Duration:</strong> 15 minutes</p>
-                <a href="#booking-form" aria-label="Book IT support service">Book IT support</a>
+                <p style="font-size: 0.9rem; margin-bottom: 1rem;"><strong>Duration:</strong> 15 minutes</p>
+                <a href="#booking-section" aria-label="Book IT support service">Book IT support</a>
             </article>
 
             <article class="card">
+                <figure style="margin: -1.25rem -1.25rem 1rem -1.25rem; overflow: hidden; border-top-left-radius: var(--radius); border-top-right-radius: var(--radius); height: 160px;">
+                    <img src="/assets/img/healthcheckup.jpg" 
+                         alt="Doctor examining a patient during a routine outpatient health clinic consultation" 
+                         style="width: 100%; height: 100%; object-fit: cover;">
+                </figure>
                 <h2>Student Health Clinic</h2>
                 <p>Non-emergency medical consultations and wellness check-ups.</p>
-                <p><strong>Duration:</strong> 30 minutes</p>
-                <a href="#booking-form" aria-label="Book student health appointment">Book health check-up</a>
+                <p style="font-size: 0.9rem; margin-bottom: 1rem;"><strong>Duration:</strong> 30 minutes</p>
+                <a href="#booking-section" aria-label="Book student health appointment">Book health check-up</a>
             </article>
         </div>
+
 
         <!-- Booking Form Section Container -->
         <!-- Booking Form Section Container -->
