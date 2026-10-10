@@ -15,8 +15,18 @@ function database(): PDO
     // Pull configuration details from secure environment variables
     $host = getenv('DB_HOST') ?: '127.0.0.1';
     $name = getenv('DB_NAME') ?: 'campuscare';
-    $user = getenv('DB_USER') ?: throw new RuntimeException('Database environment configuration: DB_USER is missing.');
-    $pass = getenv('DB_PASSWORD') ?: throw new RuntimeException('Database environment configuration: DB_PASSWORD is missing.');
+    
+    // Check if the variables are explicitly set (allows empty strings for passwords)
+    $user = getenv('DB_USER');
+    $pass = getenv('DB_PASSWORD');
+
+    if ($user === false) {
+        throw new RuntimeException('Database environment configuration: DB_USER is missing.');
+    }
+    
+    if ($pass === false) {
+        throw new RuntimeException('Database environment configuration: DB_PASSWORD is missing.');
+    }
 
     $pdo = new PDO(
         "mysql:host={$host};dbname={$name};charset=utf8mb4",
@@ -27,7 +37,7 @@ function database(): PDO
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             // Fetch records as clean, associative arrays by default
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            // Critical Security: Turn OFF simulated prepared statements to ensure the engine compiles raw SQL safely
+            // Critical Security: Turn OFF simulated prepared statements
             PDO::ATTR_EMULATE_PREPARES => false,
         ]
     );

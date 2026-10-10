@@ -5,7 +5,7 @@ require_once __DIR__ . '/../src/bootstrap.php';
 require_once __DIR__ . '/../src/helpers.php';
 require_once __DIR__ . '/../src/Database.php';
 
-// 1. Guard Rule: Enforce that this route only accepts POST requests
+// 1. Route Guard: Enforce that this route only accepts POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Allow: POST');
     http_response_code(405);
@@ -38,8 +38,8 @@ try {
 
     // Insert record with parameterized placeholders to block SQL injection
     $insert = $pdo->prepare(
-        'INSERT INTO bookings (user_id, service_id, starts_at, notes, status)
-         VALUES (:user_id, :service_id, :starts_at, :notes, \'pending\')'
+        "INSERT INTO bookings (user_id, service_id, starts_at, notes, status)
+         VALUES (:user_id, :service_id, :starts_at, :notes, 'pending')"
     );
 
     $insert->execute([
@@ -65,7 +65,7 @@ try {
     // Log the actual backend error details silently for diagnostics
     error_log('Booking database storage failure: ' . $error->getMessage());
 
-    // Check if error is due to a duplicate slot collision (MySQL error code 23000)
+    // Check if error is due to a duplicate slot collision (MySQL error code 1062 / 23000)
     if (str_contains($error->getMessage(), '1062') || str_contains($error->getMessage(), '23000')) {
         $errors['slot_id'] = 'The selected appointment time slot is already fully booked.';
         http_response_code(409); // Conflict status code

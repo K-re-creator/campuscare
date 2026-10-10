@@ -25,7 +25,7 @@ try {
 } catch (Throwable $e) {
     // If database connection hits a snag, log it privately and mask with a safe public user hint
     error_log('Dashboard booking fetch error: ' . $e->getMessage());
-    $bookings =;
+    $bookings = [];
     $systemError = 'Your historical booking logs could not be loaded safely right now.';
 }
 ?>
