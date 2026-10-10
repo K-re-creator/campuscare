@@ -6,6 +6,11 @@ putenv('DB_NAME=campuscare');
 putenv('DB_USER=root');
 putenv('DB_PASSWORD='); // <-- Insert your local MySQL root password inside these quotes if you have one set up
 
+// 2. DEFENSIVE SECURITY: Turn off public inline tracking dumps completely (Lab 10 requirement)
+ini_set('display_errors', '0');
+ini_set('display_startup_errors', '0');
+error_reporting(E_ALL); 
+
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_set_cookie_params([
         'lifetime' => 0,                      // Expires when browser closes
@@ -16,6 +21,13 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     ]);
     session_start();
 }
+
+// 4. LAB 11 HARDENING: Inject Security Policy Response Headers globally
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: DENY');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
+header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none';");
 
 /**
  * Generates or fetches a cryptographically secure token for forms.
