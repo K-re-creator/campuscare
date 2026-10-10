@@ -1,80 +1,381 @@
-/* Custom properties definitions */
+/* ==========================================================================
+   CampusCare Global Core Variables & Reset Boundaries (Lab 2 Compliance)
+   ========================================================================== */
 :root {
-  --brand: #17365d;
-  --accent: #c98910;
-  --space: 1rem;
+    --brand: #17365d;         /* Deep institutional corporate navy tint */
+    --accent: #c98910;        /* High-visibility operational amber focus */
+    --text-main: #17202a;     /* Accessible body slate tone */
+    --bg-light: #f8f9fa;      /* Clean background paper gray value */
+    --border-base: #c9d1d9;   /* Smooth framework separation wire gray */
+    --space: 1rem;
+    --radius: 0.5rem;
 }
 
 * {
-  box-sizing: border-box; 
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-  margin: 0;
-  color: #17202a; 
-  font: 1rem/1.55 system-ui, sans-serif; 
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.55;
+    color: var(--text-main);
+    background-color: #ffffff;
+    padding: 0;
 }
 
-a { 
-  color: #174f88; 
+/* ==========================================================================
+   Accessibility Architecture Primitives (Keyboard Navigation Support)
+   ========================================================================== */
+.skip-link {
+    position: absolute;
+    left: -10000px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
 }
 
-/* Keyboard Accessibility Focus Rings */
-:focus-visible { 
-  outline: 3px solid var(--accent); 
-  outline-offset: 3px; 
+.skip-link:focus {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    width: auto;
+    height: auto;
+    background: #ffffff;
+    color: var(--brand);
+    padding: 0.75rem 1.5rem;
+    border: 2px solid var(--brand);
+    border-radius: calc(var(--radius) / 2);
+    font-weight: bold;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-/* Hidden skip link baseline styles */
-.skip-link { 
-  position: absolute; 
-  left: -10000px; 
-  top: auto; 
+/* Explicit focus indicator logic protecting standard keyboard users */
+:focus-visible {
+    outline: 3px solid var(--accent) !important;
+    outline-offset: 3px !important;
 }
 
-.skip-link:focus { 
-  left: 1rem; 
-  top: 1rem; 
-  background: white; 
-  padding: .75rem; 
-  z-index: 5; 
+/* ==========================================================================
+   Structural Layout & Navigation Menu Architecture
+   ========================================================================== */
+.site-header {
+    background-color: var(--brand);
+    color: #ffffff;
+    padding: var(--space) calc(var(--space) * 1.5);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.site-header, nav, main, footer { 
-  padding: var(--space); 
+.site-header .brand {
+    color: #ffffff;
+    font-size: 1.5rem;
+    font-weight: 800;
+    text-decoration: none;
+    letter-spacing: -0.03em;
 }
 
-/* Mobile-First Layout Config (Single column layout) */
-.services { 
-  display: grid; 
-  gap: var(--space); 
+.site-header a:hover {
+    text-decoration: underline;
 }
 
-.card { 
-  border: 1px solid #c9d1d9; 
-  border-radius: .5rem; 
-  padding: 1rem; 
+nav[aria-label="Primary"] {
+    background-color: var(--bg-light);
+    border-bottom: 1px solid var(--border-base);
+    padding: 0.5rem calc(var(--space) * 1.5);
+}
+
+.nav-list {
+    display: flex;
+    gap: 1.5rem;
+    list-style: none;
+}
+
+.nav-list a {
+    color: var(--brand);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 0.25rem 0;
+}
+
+.nav-list a[aria-current="page"] {
+    border-bottom: 3px solid var(--accent);
+    color: var(--text-main);
+}
+
+main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: calc(var(--space) * 2) calc(var(--space) * 1.5);
+}
+
+h1 {
+    font-size: 2.25rem;
+    color: var(--brand);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+}
+
+main > p {
+    color: #555;
+    margin-bottom: 2rem;
+}
+
+/* ==========================================================================
+   Mobile-First Service Catalogue Component Grid Layout 
+   ========================================================================== */
+.services {
+    display: grid;
+    gap: calc(var(--space) * 1.5);
+    margin-bottom: 3.5rem;
+}
+
+.card {
+    background: #ffffff;
+    border: 1px solid var(--border-base);
+    border-radius: var(--radius);
+    padding: calc(var(--space) * 1.25);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.card h2 {
+    font-size: 1.35rem;
+    color: var(--brand);
+    margin-bottom: 0.75rem;
+}
+
+.card p {
+    font-size: 0.95rem;
+    color: #4a5568;
+    margin-bottom: 1rem;
+    flex-grow: 1;
+}
+
+.card a {
+    display: inline-block;
+    text-align: center;
+    background-color: var(--brand);
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.6rem 1rem;
+    border-radius: var(--radius);
+    margin-top: auto;
+}
+
+.card a:hover {
+    background-color: #0f2542;
+}
+
+/* Ensure all figure banner images shrink and fill their containers perfectly */
+.card figure img {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+}
+
+
+/* ==========================================================================
+   Form UI Controls & Defensive Security Notification Frameworks
+   ========================================================================== */
+#booking-section {
+    background-color: var(--bg-light);
+    border: 1px solid var(--border-base);
+    border-radius: var(--radius);
+    padding: calc(var(--space) * 2);
+    max-width: 650px;
+    margin: 0 auto;
+}
+
+#booking-section h2 {
+    font-size: 1.75rem;
+    color: var(--brand);
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--border-base);
+    padding-bottom: 0.5rem;
 }
 
 .field {
-  margin-bottom: var(--space);
+    margin-bottom: 1.5rem;
 }
 
-label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 0.25rem;
+.field label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+    font-size: 0.95rem;
+    color: var(--brand);
 }
 
-/* 💻 Media Queries for Wider Screens */
+.field select, 
+.field input[type="date"], 
+.field textarea {
+    width: 100%;
+    padding: 0.65rem;
+    border: 1px solid var(--border-base);
+    border-radius: calc(var(--radius) / 2);
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--text-main);
+    background-color: #ffffff;
+}
+
+.field select:focus, 
+.field input:focus, 
+.field textarea:focus {
+    border-color: var(--brand);
+}
+
+.field select[aria-invalid="true"], 
+.field input[aria-invalid="true"], 
+.field textarea[aria-invalid="true"] {
+    border: 2px solid #c5221f;
+    background-color: #fff8f8;
+}
+
+.error {
+    color: #c5221f;
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-top: 0.35rem;
+}
+
+.error-summary {
+    background-color: #fce8e6;
+    border: 2px solid #c5221f !important;
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.error-summary h3 {
+    color: #c5221f;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.error-summary ul {
+    list-style-position: inside;
+}
+
+.error-summary a {
+    color: #c5221f;
+    font-weight: 600;
+}
+
+button[type="submit"] {
+    display: block;
+    width: 100%;
+    background-color: var(--brand);
+    color: #ffffff;
+    border: none;
+    padding: 0.75rem;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: #0f2542;
+}
+
+button[type="submit"]:disabled {
+    background-color: #a0aec0;
+    cursor: not-allowed;
+}
+
+/* ==========================================================================
+   Relational Dashboard Table Frameworks (Lab 8 UI Polish)
+   ========================================================================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+th, td {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-base);
+    text-align: left;
+}
+
+th {
+    background-color: var(--brand);
+    color: #ffffff;
+    font-weight: 600;
+}
+
+tr:nth-child(even) {
+    background-color: var(--bg-light);
+}
+
+/* ==========================================================================
+   Mobile-Responsive Data Table Reflow Matrix (Lab 2/8 Refinement)
+   ========================================================================== */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-top: 1.5rem;
+    border: 1px solid var(--border-base);
+    border-radius: var(--radius);
+}
+
+/* Enforce crisp minimum sizing boundaries for small screens to prevent compression overlaps */
+.table-responsive table {
+    margin: 0 !important;
+    min-width: 600px; /* Forces table to layout clearly without smashing characters together */
+}
+
+/* Clean up table header header spacing dimensions */
+th, td {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.9rem;
+    white-space: normal;
+    word-break: break-word;
+}
+
+
+footer {
+    text-align: center;
+    padding: 2rem;
+    color: #718096;
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border-base);
+    margin-top: 5rem;
+}
+
+/* ==========================================================================
+   Responsive Reflow Media Breakpoints (Desktop Upscaling)
+   ========================================================================== */
 @media (min-width: 48rem) {
-  .services { 
-    grid-template-columns: repeat(2, minmax(0, 1fr)); 
-  }
+    .services {
+        grid-template-columns: repeat(2, minmax(0, 1fr)); /* Two columns for medium screens */
+    }
 }
 
 @media (min-width: 75rem) {
-  .services { 
-    grid-template-columns: repeat(3, minmax(0, 1fr)); 
-  }
+    .services {
+        grid-template-columns: repeat(3, minmax(0, 1fr)); /* Three columns for wide desktop profiles */
+    }
 }

@@ -75,13 +75,15 @@ try {
         <?php if (empty($bookings)): ?>
             <p>You do not have any active appointments scheduled at this moment.</p>
         <?php else: ?>
-            <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+            <div class="table-responsive">
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
                 <thead>
                     <tr style="background-color: #17365d; color: white; text-align: left;">
                         <th style="padding: 0.75rem; border: 1px solid #dee2e6;">Service Name</th>
                         <th style="padding: 0.75rem; border: 1px solid #dee2e6;">Preferred Date & Time</th>
                         <th style="padding: 0.75rem; border: 1px solid #dee2e6;">Status</th>
                         <th style="padding: 0.75rem; border: 1px solid #dee2e6;">Consultation Notes</th>
+                        <th style="padding: 0.75rem; border: 1px solid #dee2e6;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -97,10 +99,27 @@ try {
                             <td style="padding: 0.75rem; border: 1px solid #dee2e6; font-style: italic; color: #555;">
                                 <?= $booking['notes'] ? e($booking['notes']) : 'No additional notes added.' ?>
                             </td>
+                            <td style="padding: 0.75rem; border: 1px solid #dee2e6;">
+                                <!-- If the booking status is still pending, provide a defensive secure POST cancellation entry form -->
+                                <?php if ($booking['status'] === 'pending'): ?>
+                                    <form action="/booking-cancel.php" method="post" onsubmit="return confirm('Are you sure you want to cancel this appointment schedule entry?');" style="display: inline;">
+                                        
+                                        <input type="hidden" name="csrf" value="<?= e(csrfToken()) ?>">
+                                        <input type="hidden" name="booking_id" value="<?= e((string)$booking['id']) ?>">
+                                        <button type="submit" style="padding: 0.25rem 0.5rem; background-color: #c5221f; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
+                                            Cancel
+                                        </button>
+                                    </form>
+                                <?php else: ?>
+                                    <span style="font-size: 0.85rem; color: #777;">Locked</span>
+                                <?php endif; ?>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            </div>
+
         <?php endif; ?>
     </main>
 

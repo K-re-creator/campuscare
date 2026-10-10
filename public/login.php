@@ -21,36 +21,50 @@ unset($_SESSION['login_error']); // Clear it immediately so it doesn't stay fore
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - CampusCare</title>
+    <!-- Link to your professional layout stylesheet asset -->
     <link rel="stylesheet" href="/assets/css/app.css">
 </head>
-<body>
-    <main id="main" style="max-width: 400px; margin: 2rem auto; padding: 1rem; border: 1px solid #ccc; border-radius: 8px;">
-        <h1>CampusCare Login</h1>
+<body style="background-color: var(--bg-light); padding: 4rem 1rem;">
 
-        <?php if ($errorMessage): ?>
-            <div style="background-color: #fce8e6; color: #c5221f; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem;" role="alert">
-                <?= e($errorMessage) ?>
+    <!-- Skip link for keyboard accessibility -->
+    <a class="skip-link" href="#login-container">Skip to main content</a>
+
+    <main id="login-container" style="max-width: 450px; margin: 0 auto;">
+        
+        <div id="booking-section" style="background: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+            <h2 style="text-align: center; border-bottom: none; padding-bottom: 0; margin-bottom: 2rem;">CampusCare Login</h2>
+
+            <?php if ($errorMessage): ?>
+                <div class="error-summary" role="alert">
+                    <h3 style="margin: 0; font-size: 1rem; font-weight: bold;"><?= e($errorMessage) ?></h3>
+                </div>
+            <?php endif; ?>
+
+            <form action="/login-process.php" method="post" novalidate>
+                <!-- 1. The mandatory anti-CSRF token hidden field -->
+                <input type="hidden" name="csrf" value="<?= e(csrfToken()) ?>">
+
+                <div class="field">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="student@example.test" required>
+                </div>
+
+                <div class="field" style="margin-bottom: 2rem;">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit">
+                    Sign In
+                </button>
+            </form>
+            
+            <div style="margin-top: 1.5rem; text-align: center; font-size: 0.85rem; color: #666;">
+                <p>Development Test Credentials:<br><strong>student@example.test</strong> / <strong>password123</strong></p>
             </div>
-        <?php endif; ?>
-
-        <form action="/login-process.php" method="post" novalidate>
-            <!-- 1. The mandatory anti-CSRF token hidden field -->
-            <input type="hidden" name="csrf" value="<?= e(csrfToken()) ?>">
-
-            <div style="margin-bottom: 1rem;">
-                <label playbook-focus for="email" style="display: block; margin-bottom: 0.25rem;">Email Address</label>
-                <input type="email" id="email" name="email" required style="width: 100%; padding: 0.5rem; box-sizing: border-box;">
-            </div>
-
-            <div style="margin-bottom: 1rem;">
-                <label playbook-focus for="password" style="display: block; margin-bottom: 0.25rem;">Password</label>
-                <input type="password" id="password" name="password" required style="width: 100%; padding: 0.5rem; box-sizing: border-box;">
-            </div>
-
-            <button type="submit" style="padding: 0.5rem 1rem; background-color: #17365d; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                Sign In
-            </button>
-        </form>
+        </div>
+        
     </main>
+
 </body>
 </html>
