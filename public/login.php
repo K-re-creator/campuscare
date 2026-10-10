@@ -1,70 +1,55 @@
 <?php
 declare(strict_types=1);
-require_once __DIR__ . '/../src/helpers.php';
+
+// Initialize secure session management and helpers
 require_once __DIR__ . '/../src/bootstrap.php';
+require_once __DIR__ . '/../src/helpers.php';
 
-// Initialize a blank error variable
-$error = '';
-
-// Fake temporary user account credentials to test with (Plaintext: "password123")
-// We generate this hash securely using PHP's native password_hash algorithm
-$testHash = password_hash('password123', PASSWORD_DEFAULT);
-
-// Process the form only if the user clicked "Sign In"
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $submittedEmail = trim((string)($_POST['email'] ?? ''));
-    $submittedPassword = (string)($_POST['password'] ?? '');
-
-    // Security Rule: Use a generic error message so hackers don't know if the email exists
-    if ($submittedEmail !== 'student@example.test' || !password_verify($submittedPassword, $testHash)) {
-        $error = 'Email or password is incorrect.';
-    } else {
-         // SUCCESS! Securely rotate the session ID card to block session fixation attacks
-        session_regenerate_id(true);
-        
-        // Save the authenticated user profile details directly into server memory
-        $_SESSION['user'] = [
-            'id' => 1,
-            'email' => 'student@example.test',
-            'role' => 'customer'
-        ];
-        $_SESSION['authenticated_at'] = time();
-
-        // Safe Post/Redirect/Get jump back to your workspace index catalogue
-        header('Location: /', true, 303);
-        exit;
-    }
+// If already logged in, skip this page and go straight to bookings
+if (isset($_SESSION['user'])) {
+    header('Location: /bookings.php', true, 303);
+    exit;
 }
+
+// Check if there is an error message saved in the session from a failed login attempt
+$errorMessage = $_SESSION['login_error'] ?? null;
+unset($_SESSION['login_error']); // Clear it immediately so it doesn't stay forever
 ?>
 <!doctype html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - CampusCare</title>
     <link rel="stylesheet" href="/assets/css/app.css">
 </head>
 <body>
-    <main id="main" style="max-width: 400px; margin: 50px auto; padding: 20px;">
-        <h1>Sign In</h1>
+    <main id="main" style="max-width: 400px; margin: 2rem auto; padding: 1rem; border: 1px solid #ccc; border-radius: 8px;">
+        <h1>CampusCare Login</h1>
 
-        <?php if (!empty($error)): ?>
-            <div style="color: red; margin-bottom: 15px;" role="alert">
-                <strong><?= e($error) ?></strong>
+        <?php if ($errorMessage): ?>
+            <div style="background-color: #fce8e6; color: #c5221f; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem;" role="alert">
+                <?= e($errorMessage) ?>
             </div>
         <?php endif; ?>
 
-        <form action="/login.php" method="post">
-            <div class="field" style="margin-bottom: 15px;">
-                <label for="email">Email Address</label><br>
-                <input type="email" id="email" name="email" required value="<?= e($submittedEmail ?? '') ?>">
+        <form action="/login-process.php" method="post" novalidate>
+            <!-- 1. The mandatory anti-CSRF token hidden field -->
+            <input type="hidden" name="csrf" value="<?= e(csrfToken()) ?>">
+
+            <div style="margin-bottom: 1rem;">
+                <label playbook-focus for="email" style="display: block; margin-bottom: 0.25rem;">Email Address</label>
+                <input type="email" id="email" name="email" required style="width: 100%; padding: 0.5rem; box-sizing: border-box;">
             </div>
 
-            <div class="field" style="margin-bottom: 15px;">
-                <label for="password">Password</label><br>
-                <input type="password" id="password" name="password" required>
+            <div style="margin-bottom: 1rem;">
+                <label playbook-focus for="password" style="display: block; margin-bottom: 0.25rem;">Password</label>
+                <input type="password" id="password" name="password" required style="width: 100%; padding: 0.5rem; box-sizing: border-box;">
             </div>
 
-            <button type="submit">Sign In</button>
+            <button type="submit" style="padding: 0.5rem 1rem; background-color: #17365d; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Sign In
+            </button>
         </form>
     </main>
 </body>
